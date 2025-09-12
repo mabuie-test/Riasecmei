@@ -35,5 +35,39 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+// --- INÍCIO: endpoint temporário para criação de admin (REMOVER APÓS USO) ---
+router.post('/create-admin-temp', async (req, res) => {
+  try {
+    const { name, email, password, registerToken } = req.body;
+    if (!registerToken || registerToken !== process.env.ADMIN_REGISTER_TOKEN) {
+      return res.status(403).json({ message: 'Token de registo inválido ou ausente' });
+    }
+    if (!email || !password || !name) {
+      return res.status(400).json({ message: 'Campos obrigatórios: name, email, password' });
+    }
 
+    const exists = await User.findOne({ email });
+    if (exists) {
+      exists.isAdmin = true;
+      await exists.save();
+      console.log(`[ADMIN-CREATE] Promoted existing user to admin: ${email}`);
+      return res.json({ message: 'Utilizador existente promovido a admin', email });
+    }
+
+    const bcrypt = require('bcrypt');
+    const hash = await bcrypt.hash(password, 10);
+    const user = new User({ name, email, passwordHash: hash, isAdmin: true });
+    await user.save();
+
+    console.log(`[ADMIN-CREATE] New admin created: ${email} at ${new Date().toISOString()}`);
+    return res.json({ message: 'Admin criado com sucesso', email });
+  } catch (err) {
+    console.error('Erro create-admin-temp:', err);
+    return res.status(500).json({ message: 'Erro no servidor' });
+  }
+});
+// --- FIM: endpoint temporário para criação de admin ---
+
+
+  
 module.exports = router;
