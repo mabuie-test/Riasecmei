@@ -1,25 +1,46 @@
+// client/src/components/Dashboard.jsx
 import React, {useEffect, useState} from 'react'
+import { useNavigate } from 'react-router-dom'
 import TestForm from './TestForm'
-import RadarChart from './RadarChart'
 import CircleProfile from './CircleProfile'
 
 const labels = ['Realista (R)','Investigativo (I)','Artístico (A)','Social (S)','Empreendedor (E)','Convencional (C)']
 
 export default function Dashboard(){
   const [profile,setProfile] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
 
   useEffect(()=>{
     async function load(){
       const token = localStorage.getItem('token')
-      if(!token) return
+      if(!token){
+        // Não autenticado -> redirecionar para login
+        setLoading(false)
+        navigate('/login', { replace: true })
+        return
+      }
       try{
         const res = await fetch(`${import.meta.env.VITE_API_URL}/api/profiles/me`, { headers: { Authorization: `Bearer ${token}` }})
         const data = await res.json()
+        if(res.status === 401){
+          // token inválido/expirado -> remover e redirecionar
+          localStorage.removeItem('token')
+          localStorage.removeItem('user')
+          navigate('/login', { replace: true })
+          return
+        }
         setProfile(data.profile)
-      }catch(err){ }
+      }catch(err){
+        console.error('Erro ao carregar perfil', err)
+      }finally{
+        setLoading(false)
+      }
     }
     load()
-  },[])
+  },[navigate])
+
+  if(loading) return <div className="p-6">A carregar...</div>
 
   return (
     <div className='container mx-auto p-6'>
