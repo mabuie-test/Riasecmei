@@ -7,6 +7,7 @@ import axios from 'axios'
 export default function TestForm({ onSubmit }) {
   const [answers, setAnswers] = useState({})
   const [submitting, setSubmitting] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -14,6 +15,10 @@ export default function TestForm({ onSubmit }) {
     const map = {}
     QUESTIONS.forEach(q => (map[q.id] = 0))
     setAnswers(map)
+
+    // check auth
+    const token = localStorage.getItem('token')
+    setIsAuthenticated(!!token)
   }, [])
 
   function setVal(id, v) {
@@ -36,8 +41,13 @@ export default function TestForm({ onSubmit }) {
 
     const token = localStorage.getItem('token')
     if (!token) {
-      alert('Precisas de iniciar sessão para submeter o teste. Irás ser redirecionado para a página de login.')
-      navigate('/login', { replace: true })
+      // show friendly message with navigation options
+      const go = window.confirm('Precisas de iniciar sessão para submeter o teste. Desejas ir para a página de iniciar sessão? (Cancelar abre a página de registo)')
+      if (go) {
+        navigate('/login', { replace: true })
+      } else {
+        navigate('/register', { replace: true })
+      }
       return
     }
 
@@ -67,7 +77,29 @@ export default function TestForm({ onSubmit }) {
 
   return (
     <form onSubmit={submit} className="bg-white p-6 rounded shadow space-y-4">
-      <h3 className="text-lg font-bold">Questionário de Interesses (exemplo)</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-bold">Questionário de Interesses (exemplo)</h3>
+        {!isAuthenticated && (
+          <div className="text-sm">
+            <span className="mr-2 text-gray-600">Ainda não tens conta?</span>
+            <button
+              type="button"
+              onClick={() => navigate('/register')}
+              className="mr-2 bg-green-600 text-white px-3 py-1 rounded text-sm"
+            >
+              Registar
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/login')}
+              className="bg-blue-600 text-white px-3 py-1 rounded text-sm"
+            >
+              Entrar
+            </button>
+          </div>
+        )}
+      </div>
+
       <p className="text-sm text-gray-600">Responda de 0 (não gosto) a 3 (gosto muito)</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -79,7 +111,7 @@ export default function TestForm({ onSubmit }) {
                 value={answers[q.id] ?? 0}
                 onChange={e => setVal(q.id, e.target.value)}
                 className="border p-1"
-                disabled={submitting}
+                disabled={submitting || !isAuthenticated}
               >
                 <option value={0}>0 - Não gosto</option>
                 <option value={1}>1 - Gosto pouco</option>
@@ -91,14 +123,21 @@ export default function TestForm({ onSubmit }) {
         ))}
       </div>
 
-      <div className="flex justify-end">
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
-          disabled={submitting}
-        >
-          {submitting ? 'A enviar...' : 'Enviar'}
-        </button>
+      <div className="flex justify-between items-center">
+        {!isAuthenticated && (
+          <div className="text-sm text-gray-500">
+            Tens de <button type="button" className="text-blue-600 underline" onClick={() => navigate('/login')}>entrar</button> ou <button type="button" className="text-blue-600 underline" onClick={() => navigate('/register')}>registar</button> para submeter o teste.
+          </div>
+        )}
+        <div className="flex justify-end w-full">
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+            disabled={submitting}
+          >
+            {submitting ? 'A enviar...' : 'Enviar'}
+          </button>
+        </div>
       </div>
     </form>
   )
