@@ -16,9 +16,15 @@ export default function Login(){
     setLoading(true)
     try{
       const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, { email, password })
+      // guardar token e user
       localStorage.setItem('token', res.data.token)
       localStorage.setItem('user', JSON.stringify(res.data.user))
-      navigate('/', { replace: true })
+      // redirecionar dependente do tipo de user
+      if (res.data.user?.isAdmin) {
+        navigate('/admin/compare', { replace: true })
+      } else {
+        navigate('/', { replace: true })
+      }
     }catch(err){
       setError(err.response?.data?.message || 'Erro ao iniciar sessão')
     }finally{
