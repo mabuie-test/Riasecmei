@@ -83,7 +83,7 @@ export default function Login(){
         </form>
 
         <div className="mt-4 text-xs text-gray-500">
-          Ao clicar no login concordas que os teus dados serão usados para trança o teubperfil de interesse vocacional pelo grupo.
+          Ao clicar no login concordas que os teus dados serão usados para trançar o teu perfil de interesse vocacional pelo grupo.
         </div>
       </div>
     </div>
