@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 
 export default function WelcomeOverlay({
   developer = { name: 'Grupo de ciências da educação', role: 'Desenvolvedor', contact: 'sememail@email.com', more: 'MEI — RIASEC' },
-  showOnce = true,    // se true: guarda em localStorage e não mostra novamente
+  showOnce = false,    // se true: guarda em localStorage e não mostra novamente
   autoHideSeconds = 0 // >0 para auto-ocultar após N segundos, 0 para não auto
 }) {
   const STORAGE_KEY = 'mei_welcome_seen_v1'
