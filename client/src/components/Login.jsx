@@ -83,7 +83,7 @@ export default function Login(){
         </form>
 
         <div className="mt-4 text-xs text-gray-500">
-          Se tens problemas com registo, confirma que o servidor de autenticação está no ar e que a variável VITE_API_URL está corretamente definida.
+          Ao clicar no login concordas que os teus dados serão usados para trança o teubperfil de interesse vocacional pelo grupo.
         </div>
       </div>
     </div>
